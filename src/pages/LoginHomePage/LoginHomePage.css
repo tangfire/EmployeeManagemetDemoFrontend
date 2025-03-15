@@ -1,0 +1,32 @@
+/* 通用居中容器 */
+.global-centered-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 20px; /* 安全边距 */
+}
+
+/* 卡片容器 */
+.centered-card {
+    width: 100%;
+    max-width: 500px; /* 控制卡片最大宽度 */
+    padding: 40px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 移动端适配 */
+@media (max-width: 576px) {
+    .global-centered-container {
+        padding: 10px;
+    }
+
+    .centered-card {
+        padding: 24px;
+        box-shadow: none;
+        border: 1px solid #eee; /* 移动端显示边框 */
+    }
+}
