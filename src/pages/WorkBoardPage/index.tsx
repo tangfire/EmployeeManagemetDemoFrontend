@@ -1,6 +1,7 @@
 import {Button, Col, Layout, Menu, MenuProps, Row} from 'antd';
 import DepartmentSalaryChart from "../../components/DepartmentSalaryChart.tsx";
 import DepartmentHeadcountChart from "../../components/DepartmentHeadcountChart.tsx";
+import ChatPanel from "../../components/ChatPanel";
 import React, {useState} from 'react';
 import {
     ContainerOutlined,
@@ -10,6 +11,7 @@ import {
     PieChartOutlined,
 } from '@ant-design/icons';
 import EmployeeTable from "../../components/EmployeeTable.tsx";
+
 
 const { Header, Sider, Content } = Layout;
 
@@ -48,7 +50,7 @@ type MenuItem = Required<MenuProps>['items'][number];
 const items: MenuItem[] = [
     { key: '1', icon: <PieChartOutlined />, label: '图形数据' },
     { key: '2', icon: <DesktopOutlined />, label: '员工信息' },
-    { key: '3', icon: <ContainerOutlined />, label: '部门信息' },
+    { key: '3', icon: <ContainerOutlined />, label: '聊天通信' },
 ];
 
 const WorkBoardPage: React.FC = () => {
@@ -90,7 +92,9 @@ const WorkBoardPage: React.FC = () => {
             </div>
         )
         ,
-        '3': <div>部门信息管理（待实现）</div>
+        '3': (<div>
+            <ChatPanel />
+        </div>)
     };
 
     return (
