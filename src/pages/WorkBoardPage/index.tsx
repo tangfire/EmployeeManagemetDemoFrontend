@@ -1,18 +1,14 @@
-import { Col, MenuProps, Row } from 'antd';
-import { Layout } from 'antd';
+import {Button, Col, Layout, Menu, MenuProps, Row} from 'antd';
 import DepartmentSalaryChart from "../../components/DepartmentSalaryChart.tsx";
 import DepartmentHeadcountChart from "../../components/DepartmentHeadcountChart.tsx";
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
-    AppstoreOutlined,
     ContainerOutlined,
     DesktopOutlined,
-    MailOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     PieChartOutlined,
 } from '@ant-design/icons';
-import { Button, Menu } from 'antd';
 import EmployeeTable from "../../components/EmployeeTable.tsx";
 
 const { Header, Sider, Content } = Layout;
@@ -57,14 +53,23 @@ const items: MenuItem[] = [
 
 const WorkBoardPage: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState('1');
+    // const [selectedKey, setSelectedKey] = useState('1');
 
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
     };
 
+    // 修改 WorkBoardPage 组件的状态初始化逻辑
+    const [selectedKey, setSelectedKey] = useState(() => {
+        // 从 localStorage 读取保存的选中状态
+        return localStorage.getItem('selectedMenuKey') || '1';
+    });
+
+    // 修改菜单点击事件处理
     const handleMenuClick: MenuProps['onClick'] = (e) => {
         setSelectedKey(e.key);
+        // 将选中状态存入 localStorage
+        localStorage.setItem('selectedMenuKey', e.key);
     };
 
     const menuKeyComponentMap: Record<string, React.ReactNode> = {

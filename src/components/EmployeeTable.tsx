@@ -19,6 +19,15 @@ const EmployeeTable = () => {
     });
     const [searchText, setSearchText] = useState('');
 
+    const [departments, setDepartments] = useState<{ dep_id: number; depart: string }[]>([]);
+
+    useEffect(() => {
+        service.get('/departments').then(res => {
+            setDepartments(res.data);
+        });
+    }, []);
+
+
     const columns: ColumnsType<Employee> = [
         {
             title: '工号',
@@ -45,12 +54,22 @@ const EmployeeTable = () => {
         },
         {
             title: '部门',
-            dataIndex: 'dep_id',
-            render: depId => `部门 ${depId}`, // 实际项目需关联部门名称
-            filters: [
-                {text: '技术部', value: 1},
-                {text: '市场部', value: 2},
-            ],
+
+            dataIndex: 'dep_id', // 显示部门ID
+            render: depId => departments.find(d => d.dep_id === depId)?.depart || '未知', // 手动映射名称
+            // render: depId => `部门 ${depId}`,
+            // filters: [
+            //     {text: '技术部', value: 1}, // value 对应 dep_id
+            //     {text: '市场部', value: 2},
+            //     {text: '财务部', value: 3}
+            // ],
+            filters: departments.map(d => ({
+                text: d.depart,  // 使用部门名称
+                value: d.dep_id   // 使用部门ID
+            })),
+            // 新增筛选参数映射
+            filterMultiple: false, // 单选模式
+            onFilter: (value, record) => record.dep_id === value, // 映射筛选关系
         },
         {
             title: '职位',
@@ -63,6 +82,7 @@ const EmployeeTable = () => {
                 {text: '男', value: '男'},
                 {text: '女', value: '女'},
                 {text: '其他', value: '其他'},
+
             ],
         },
         {
@@ -124,13 +144,21 @@ const EmployeeTable = () => {
         filters,
         sorter
     ) => {
+
+        // 转换部门筛选参数名
+        const processedFilters = {
+            ...filters,
+            dep_id: filters.dep_name // 将 dep_name 筛选参数映射到 dep_id
+        };
+        delete processedFilters.dep_name; // 移除冗余参数
+
         // 直接使用新分页参数
         const params = {
             page: newPagination.current,
             pageSize: newPagination.pageSize,
             sortField: (sorter as any).field,
             sortOrder: (sorter as any).order,
-            ...filters
+            ...processedFilters
         };
 
         // 合并分页状态
