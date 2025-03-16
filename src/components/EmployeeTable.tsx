@@ -1,9 +1,12 @@
 // src/components/EmployeeTable.tsx
 import React, {useEffect, useState} from 'react';
-import {Table, Input, Space, Button, TablePaginationConfig} from 'antd';
+import {Button, Input, Space, Table, TablePaginationConfig, Upload, message} from 'antd';
 import type {ColumnsType, TableProps} from 'antd/es/table';
-import {SearchOutlined} from '@ant-design/icons';
+// 在EmployeeTable.tsx中添加导出按钮和逻辑
+import {FileExcelOutlined, SearchOutlined} from '@ant-design/icons';
 import service from '../utils/request';
+import {saveAs} from 'file-saver';
+import {color} from "echarts";
 
 
 const EmployeeTable = () => {
@@ -21,11 +24,71 @@ const EmployeeTable = () => {
 
     const [departments, setDepartments] = useState<{ dep_id: number; depart: string }[]>([]);
 
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const importSuccess = () => {
+        messageApi.open({
+            type: 'success',
+            content: '导入成功',
+        });
+    };
+
+    const importError = () => {
+        messageApi.open({
+            type: 'error',
+            content: '导入失败',
+        });
+    };
+
+    const exportSuccess = () => {
+        messageApi.open({
+            type: 'success',
+            content: '导出成功',
+        });
+    };
+
+    const exportError = () => {
+        messageApi.open({
+            type: 'error',
+            content: '导出失败',
+        });
+    };
+
     useEffect(() => {
         service.get('/departments').then(res => {
             setDepartments(res.data);
         });
     }, []);
+
+    // 导出方法
+    const exportEmployees = async () => {
+        try {
+            const response = await service.get('/admin/employees/export', {
+                responseType: 'blob' // 关键：接收二进制流
+            });
+            saveAs(new Blob([response]), `员工信息_${new Date().toISOString()}.xlsx`);
+            exportSuccess()
+        } catch (error) {
+            exportError()
+        }
+    };
+
+
+    const customRequest = async ({file}) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await service.post('/admin/employees/import', formData, {
+                headers: {'Content-Type': 'multipart/form-data'}
+            });
+            importSuccess()
+            fetchData(); // 刷新表格
+        } catch (error) {
+            importError()
+        }
+
+    };
 
 
     const columns: ColumnsType<Employee> = [
@@ -136,7 +199,7 @@ const EmployeeTable = () => {
     // 修改 EmployeeTable.tsx 的 useEffect
     useEffect(() => {
         // 新增页面初始化请求
-        if (!searchText) fetchData({ page: 1, pageSize: 10 });
+        if (!searchText) fetchData({page: 1, pageSize: 10});
     }, [searchText]); // 保留原有依赖
 
     const handleTableChange: TableProps<Employee>['onChange'] = (
@@ -173,13 +236,41 @@ const EmployeeTable = () => {
 
     return (
         <div style={{padding: 24, background: '#fff'}}>
-            <div style={{marginBottom: -48}}>
+
+            <div style={{
+                marginBottom: 24, // 调整底部间距
+                display: 'flex',
+                justifyContent: 'space-between', // 左右两端对齐
+                alignItems: 'center' // 垂直居中
+            }}>
+                {contextHolder}
                 <Input.Search
                     placeholder="输入姓名/职位/电话搜索"
                     onSearch={value => setSearchText(value)}
                     style={{width: 400}}
                     enterButton
                 />
+                <Button
+                    type="primary"
+                    icon={<FileExcelOutlined/>}
+                    onClick={exportEmployees}
+                    style={{marginLeft: 560,}}
+                >
+                    导出Excel
+                </Button>
+
+                <Upload
+                    customRequest={customRequest}
+                    accept=".xlsx"
+                    showUploadList={false}
+
+                >
+                    <Button
+                        style={{marginLeft: 8,backgroundColor:"#da2505",color: 'white'}}
+                    >
+                        导入Excel
+                    </Button>
+                </Upload>
             </div>
 
 
