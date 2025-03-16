@@ -23,8 +23,9 @@ const headerStyle: React.CSSProperties = {
     height: 64,
     paddingInline: 48,
     lineHeight: '64px',
-    backgroundColor: '#f1f2f6',
+    backgroundColor: 'white',
     fontSize: 24,
+    borderBottomStyle: 'solid',
 };
 
 const contentStyle: React.CSSProperties = {
@@ -79,7 +80,7 @@ const WorkBoardPage: React.FC = () => {
         ),
         '2': (
             <div style={{maxWidth: 1200, margin: '0 auto'}}>
-                <h2 style={{marginBottom: 24}}>员工信息管理</h2>
+                {/*<h2 style={{marginBottom: 24}}>员工信息管理</h2>*/}
                 <EmployeeTable/>
             </div>
         )

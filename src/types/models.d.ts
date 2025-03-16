@@ -9,7 +9,7 @@ interface ApiResponse<T = any> {
   timestamp: number
 }
 
-// 前端类型定义（types/request.d.ts）
+// 前端类型定义（types/models.d.ts）
 interface RegisterRequest {
   username: string
   password: string
@@ -38,3 +38,17 @@ interface DepartmentHeadcountData {
   headcount: number;
   percentage: number;
 }
+
+
+interface Employee {
+  emp_id: number;
+  username: string;
+  position: string;
+  dep_id: number;
+  gender: string;
+  email: string;
+  phone: string;
+  salary: number;
+  status: string;
+}
+

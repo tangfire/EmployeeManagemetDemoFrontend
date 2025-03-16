@@ -20,6 +20,14 @@ const App: React.FC = () => (
                 // 派生变量，影响范围小
                 colorBgContainer: 'white',
             },
+            components: {
+                Table: {
+                    colorBgContainer: '#fff', // 表格背景色
+                    colorText: 'rgba(0, 0, 0, 0.88)', // 表格文字颜色
+                    headerBg: '#fafafa', // 表头背景
+                    stickyScrollBarBg: "#ff7f50",
+                }
+            }
         }}
     >
 
