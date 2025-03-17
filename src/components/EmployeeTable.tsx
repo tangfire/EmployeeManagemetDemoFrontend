@@ -1,12 +1,11 @@
 // src/components/EmployeeTable.tsx
 import React, {useEffect, useState} from 'react';
-import {Button, Input, Space, Table, TablePaginationConfig, Upload, message} from 'antd';
+import {Button, Input, message, Space, Table, TablePaginationConfig, Upload} from 'antd';
 import type {ColumnsType, TableProps} from 'antd/es/table';
 // 在EmployeeTable.tsx中添加导出按钮和逻辑
 import {FileExcelOutlined, SearchOutlined} from '@ant-design/icons';
 import service from '../utils/request';
 import {saveAs} from 'file-saver';
-import {color} from "echarts";
 
 
 const EmployeeTable = () => {
@@ -179,15 +178,17 @@ const EmployeeTable = () => {
         try {
             const response = await service.get('/admin/employees', {
                 params: {
+                    // 合并搜索参数（优先级高于其他参数）
                     search: searchText,
-                    ...params // 优先级高于组件状态
+                    ...params
                 }
             });
 
             setData(response.data.data);
             setPagination(prev => ({
                 ...prev,
-                total: response.data.total
+                total: response.data.total,
+                current: params.page || 1 // 同步页码
             }));
         } catch (error) {
             console.error('获取数据失败:', error);
@@ -196,11 +197,18 @@ const EmployeeTable = () => {
         }
     };
 
-    // 修改 EmployeeTable.tsx 的 useEffect
     useEffect(() => {
-        // 新增页面初始化请求
-        if (!searchText) fetchData({page: 1, pageSize: 10});
-    }, [searchText]); // 保留原有依赖
+        // 添加防抖处理（300ms延迟）
+        const handler = setTimeout(() => {
+            fetchData({
+                page: 1, // 搜索时重置到第一页
+                pageSize: pagination.pageSize,
+                search: searchText
+            });
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [searchText]); // 保持依赖
 
     const handleTableChange: TableProps<Employee>['onChange'] = (
         newPagination,
@@ -246,8 +254,12 @@ const EmployeeTable = () => {
                 {contextHolder}
                 <Input.Search
                     placeholder="输入姓名/职位/电话搜索"
-                    onSearch={value => setSearchText(value)}
-                    style={{width: 400}}
+                    onSearch={value => {
+                        setSearchText(value);
+                        // 立即触发搜索（不等待防抖）
+                        fetchData({ page: 1, pageSize: pagination.pageSize });
+                    }}
+                    style={{ width: 400 }}
                     enterButton
                 />
                 <Button

@@ -1,7 +1,7 @@
 import {Button, Col, Layout, Menu, MenuProps, Row} from 'antd';
 import DepartmentSalaryChart from "../../components/DepartmentSalaryChart.tsx";
 import DepartmentHeadcountChart from "../../components/DepartmentHeadcountChart.tsx";
-import ChatPanel from "../../components/ChatPanel";
+
 import React, {useState} from 'react';
 import {
     ContainerOutlined,
@@ -50,7 +50,7 @@ type MenuItem = Required<MenuProps>['items'][number];
 const items: MenuItem[] = [
     { key: '1', icon: <PieChartOutlined />, label: '图形数据' },
     { key: '2', icon: <DesktopOutlined />, label: '员工信息' },
-    { key: '3', icon: <ContainerOutlined />, label: '聊天通信' },
+    { key: '3', icon: <ContainerOutlined />, label: '请假审批' },
 ];
 
 const WorkBoardPage: React.FC = () => {
@@ -93,7 +93,7 @@ const WorkBoardPage: React.FC = () => {
         )
         ,
         '3': (<div>
-            <ChatPanel />
+           hello world
         </div>)
     };
 
