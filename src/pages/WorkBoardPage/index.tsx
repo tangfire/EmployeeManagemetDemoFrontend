@@ -1,8 +1,8 @@
-import {Button, Col, Layout, Menu, MenuProps, Row} from 'antd';
+import { Button, Col, Layout, Menu, MenuProps, Row } from 'antd';
 import DepartmentSalaryChart from "../../components/DepartmentSalaryChart.tsx";
 import DepartmentHeadcountChart from "../../components/DepartmentHeadcountChart.tsx";
-
-import React, {useState} from 'react';
+import Attendance from '../../components/Attendance.tsx';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
     ContainerOutlined,
     DesktopOutlined,
@@ -47,30 +47,48 @@ const layoutStyle = {
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const items: MenuItem[] = [
-    { key: '1', icon: <PieChartOutlined />, label: '图形数据' },
-    { key: '2', icon: <DesktopOutlined />, label: '员工信息' },
-    { key: '3', icon: <ContainerOutlined />, label: '请假审批' },
-];
-
 const WorkBoardPage: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
-    // const [selectedKey, setSelectedKey] = useState('1');
+    const [userRole, setUserRole] = useState(localStorage.getItem('userRole'));
+
+    // 监听 localStorage 变化
+    useEffect(() => {
+        const checkUserRole = () => {
+            const currentRole = localStorage.getItem('userRole');
+            if (currentRole !== userRole) {
+                setUserRole(currentRole);
+            }
+        };
+        // 监听 storage 事件，以应对跨标签页修改
+        window.addEventListener('storage', checkUserRole);
+        return () => window.removeEventListener('storage', checkUserRole);
+    }, [userRole]);
+
+    // 动态生成菜单项
+    const items: MenuItem[] = useMemo(() => {
+        const baseItems: MenuItem[] = [
+            { key: '1', icon: <PieChartOutlined />, label: '图形数据' },
+            { key: '2', icon: <DesktopOutlined />, label: '员工信息' },
+            { key: '3', icon: <ContainerOutlined />, label: '请假审批' },
+            { key: '4', icon: <ContainerOutlined />, label: '打卡情况' },
+
+        ];
+        return userRole === 'admin'
+            ? baseItems.filter(item => item?.key === '1' || item?.key === '2' || item?.key === '3')
+            : baseItems.filter(item => item?.key === '3' || item?.key === '4');
+    }, [userRole]);
+
+    const [selectedKey, setSelectedKey] = useState(() => {
+        const savedKey = localStorage.getItem('selectedMenuKey');
+        return userRole === 'admin' ? savedKey || '1' : '3';
+    });
 
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
     };
 
-    // 修改 WorkBoardPage 组件的状态初始化逻辑
-    const [selectedKey, setSelectedKey] = useState(() => {
-        // 从 localStorage 读取保存的选中状态
-        return localStorage.getItem('selectedMenuKey') || '1';
-    });
-
-    // 修改菜单点击事件处理
     const handleMenuClick: MenuProps['onClick'] = (e) => {
         setSelectedKey(e.key);
-        // 将选中状态存入 localStorage
         localStorage.setItem('selectedMenuKey', e.key);
     };
 
@@ -86,15 +104,17 @@ const WorkBoardPage: React.FC = () => {
             </Row>
         ),
         '2': (
-            <div style={{maxWidth: 1200, margin: '0 auto'}}>
-                {/*<h2 style={{marginBottom: 24}}>员工信息管理</h2>*/}
-                <EmployeeTable/>
+            <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                <EmployeeTable />
+            </div>
+        ),
+        '3': (<div>hello world</div>),
+        '4':(
+            <div>
+                <Attendance />
             </div>
         )
-        ,
-        '3': (<div>
-           hello world
-        </div>)
+
     };
 
     return (

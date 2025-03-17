@@ -44,7 +44,8 @@ const LoginHomePage: React.FC = () => {
 
                 // ✅ 正确存储 Token
                 localStorage.setItem('token', response.data.token);
-
+                // 示例：登录成功后存储角色
+                localStorage.setItem('userRole', response.data.user.role); // 或 'employee'
                 success()
                 // 延迟 1 秒后跳转
                 setTimeout(() => {
